@@ -1,0 +1,12 @@
+langchain
+chromadb
+sentence-transformers
+sentencepiece
+beautifulsoup4
+requests
+pdfplumber
+python-dotenv
+fastapi
+uvicorn
+openai
+pytest
