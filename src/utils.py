@@ -2,8 +2,22 @@ import re
 from typing import List, Tuple
 
 def clean_text(text: str) -> str:
-    text = text.replace('\r', ' ').replace('\n', ' ')
-    text = re.sub(r'\s+', ' ', text)
+    # Replace Windows line endings with Unix
+    text = text.replace('\r\n', '\n')
+    text = text.replace('\r', '\n')
+
+    # Preserve paragraph breaks (2+ consecutive newlines)
+    text = re.sub(r'\n{2,}', '|||PARA|||', text)
+
+    # Convert single newlines to spaces (handles line-wrapped text)
+    text = text.replace('\n', ' ')
+
+    # Restore paragraph breaks
+    text = text.replace('|||PARA|||', '\n\n')
+
+    # Normalize spaces (collapse multiple spaces to single)
+    text = re.sub(r' +', ' ', text)
+
     return text.strip()
 
 def chunk_text(text: str, max_size: int = 1000, overlap: int = 200) -> List[str]:
