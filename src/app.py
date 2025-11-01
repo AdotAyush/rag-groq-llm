@@ -29,6 +29,13 @@ class QueryRequest(BaseModel):
     use_cache: Optional[bool] = True
 
 
+class BatchPDFRequest(BaseModel):
+    directory: str
+    recursive: Optional[bool] = True
+    extract_mode: Optional[str] = "full"  # "full", "abstract", or "sections"
+    base_id: Optional[str] = "pdf_batch"
+
+
 @app.post("/index")
 async def index_payload(req: IndexRequest):
     if not req.texts:
