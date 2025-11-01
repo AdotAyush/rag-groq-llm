@@ -12,5 +12,5 @@ CHROMA_SETTINGS = {
     "persist_directory": CHROMA_PERSIST_DIR
 }
 
-MAX_CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
+MAX_CHUNK_SIZE = 2000  # Increased from 1000 for better context
+CHUNK_OVERLAP = 200     # Unchanged
