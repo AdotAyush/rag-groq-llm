@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Complete RAG workflow: Index PDFs and start interactive Q&A.
+Complete RAG workflow: Index all data (PDFs and text files) and start interactive Q&A.
 This script will:
-1. Find and index all PDFs from data/papers
+1. Find and index all PDFs and text files from data folder
 2. Start an interactive Q&A session
 """
 
@@ -12,16 +12,16 @@ import os
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.batch_pdf_processor import BatchPDFProcessor
+from src.batch_data_processor import BatchDataProcessor
 from src.rag_pipeline import SimpleRAG
 
 
 def main():
     """
-    Index PDFs and start interactive Q&A.
+    Index all data files (PDFs and text files) and start interactive Q&A.
     """
     print("="*70)
-    print("RAG System with PDF Documents")
+    print("RAG System - Complete Data Indexing")
     print("="*70)
     print()
 
@@ -32,10 +32,10 @@ def main():
     rag = SimpleRAG()
 
     # Create batch processor with the same RAG instance
-    processor = BatchPDFProcessor(rag_instance=rag)
+    processor = BatchDataProcessor(rag_instance=rag)
 
-    # Step 1: Index PDFs from data/papers
-    print("Step 1: Indexing PDFs from data folder...")
+    # Step 1: Index all data from data folder
+    print("Step 1: Indexing all data files (PDFs and text files)...")
     print(f"Searching in: {data_dir}")
     print()
 
@@ -43,13 +43,17 @@ def main():
         directory=data_dir,
         recursive=True,
         extract_mode="full",
-        base_id="pdf"
+        base_id="doc",
+        process_pdfs=True,
+        process_texts=True
     )
 
     print()
     print("-"*70)
     print(f"Status: {result['status']}")
-    print(f"PDFs found: {result['total_found']}")
+    print(f"Total files found: {result['total_found']}")
+    print(f"  - PDFs: {result['pdfs_found']}")
+    print(f"  - Text files: {result['texts_found']}")
     print(f"Successfully indexed: {result['indexed']}")
     print(f"Failed: {result['failed']}")
     print("-"*70)
