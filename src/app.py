@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from .rag_pipeline import SimpleRAG
 from .tools.pdf_scraper import PDFScraper
+from .batch_pdf_processor import BatchPDFProcessor
 
 logger = logging.getLogger("rag_app")
 logger.setLevel(logging.INFO)
