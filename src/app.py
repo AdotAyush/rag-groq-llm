@@ -74,6 +74,53 @@ async def query_endpoint(req: QueryRequest):
     return {"answer": result["answer"], "sources": result["sources"]}
 
 
+@app.post("/batch-index-pdfs")
+async def batch_index_pdfs(req: BatchPDFRequest):
+    """
+    Batch process and index all PDF files from a specified directory.
+
+    Args:
+        directory: Path to directory containing PDF files
+        recursive: Search subdirectories (default: True)
+        extract_mode: "full" (default), "abstract", or "sections"
+        base_id: Base identifier for indexed documents (default: "pdf_batch")
+
+    Returns:
+        Processing results with status and statistics
+    """
+    if not req.directory or not req.directory.strip():
+        raise HTTPException(status_code=400, detail="Directory path is required.")
+
+    # Validate extract_mode
+    if req.extract_mode not in ["full", "abstract", "sections"]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid extract_mode '{req.extract_mode}'. Must be 'full', 'abstract', or 'sections'."
+        )
+
+    try:
+        result = batch_processor.batch_process_and_index(
+            directory=req.directory,
+            recursive=req.recursive,
+            extract_mode=req.extract_mode,
+            base_id=req.base_id
+        )
+
+        if result["status"] == "no_files":
+            raise HTTPException(status_code=404, detail=f"No PDF files found in {req.directory}")
+
+        if result["status"] == "indexing_failed":
+            raise HTTPException(status_code=500, detail=f"Indexing failed: {result.get('error', 'Unknown error')}")
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Batch processing failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Batch processing failed: {str(e)}")
+
+
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
