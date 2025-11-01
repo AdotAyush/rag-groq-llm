@@ -15,6 +15,7 @@ logger.setLevel(logging.INFO)
 app = FastAPI(title="RAG Groq Capstone API")
 rag = SimpleRAG()
 pdf_scraper = PDFScraper("../data/papers/sample.pdf")  # Dummy path for initialization
+batch_processor = BatchPDFProcessor(rag_instance=rag)  # Batch processor using same RAG instance
 
 
 class IndexRequest(BaseModel):
