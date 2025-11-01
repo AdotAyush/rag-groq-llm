@@ -144,10 +144,34 @@ class SimpleRAG:
         self.index_documents(docs, metas, ids)
 
 if __name__ == "__main__":
+    import sys
+    import os
+    from pathlib import Path
+
     rag = SimpleRAG()
 
-    # 🔹 Step 1: Index some text
-    print("Indexing example documents into Chroma...")
+    # Check if user wants to load PDFs
+    print("="*70)
+    print("RAG System Startup")
+    print("="*70)
+    print()
+    print("⚠ IMPORTANT: This will only use DEMO sample data.")
+    print()
+    print("To use your PDF documents instead, run:")
+    print("  python run_rag_with_pdfs.py")
+    print()
+    print("Or use the batch processor first:")
+    print("  python batch_process_pdfs.py")
+    print()
+
+    response = input("Continue with DEMO data? (y/n): ").strip().lower()
+
+    if response not in ['y', 'yes']:
+        print("\nPlease run 'python run_rag_with_pdfs.py' to use your PDF documents.")
+        sys.exit(0)
+
+    # 🔹 Step 1: Index demo sample text
+    print("\nIndexing demo sample documents into Chroma...")
     sample_texts = [
         "Large Language Models like Groq LLM can process text efficiently and support retrieval-augmented generation.",
         "LangChain provides modular components for building LLM-powered applications.",
@@ -155,10 +179,11 @@ if __name__ == "__main__":
     ]
     rag.index_texts_with_auto_ids(sample_texts, base_id="sample")
 
-    print("Indexing complete.\n")
+    print("Demo indexing complete.\n")
 
     # 🔹 Step 2: Interactive Q&A loop
     print("=== Retrieval-Augmented Generation (RAG) System ===")
+    print("Using DEMO sample data only.")
     print("Type your research question below (or 'exit' to quit)\n")
 
     while True:
@@ -171,7 +196,10 @@ if __name__ == "__main__":
         answer = rag.answer(query)
 
         print("\n--- Final Answer ---")
-        print(answer)
+        print(answer["answer"])
+        print("\n--- Sources ---")
+        for source in answer.get("sources", []):
+            print(f"  - {source.get('id', 'Unknown')}")
 
 
 # from typing import Any, Dict, List, Optional, Tuple
