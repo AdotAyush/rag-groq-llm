@@ -16,7 +16,8 @@ from .config import MAX_CHUNK_SIZE, CHUNK_OVERLAP
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-DEFAULT_PROMPT = """You are a research assistant. User the provided context to answer the question concisely.
+DEFAULT_PROMPT = """You are a research assistant. Use the provided context to answer the question in detail and comprehensively.
+Provide thorough explanations with relevant examples and supporting information from the context.
 Cite the source chunk ids in square brackets after each fact where appropriate.
 
 Context:
@@ -24,7 +25,7 @@ Context:
 
 Question: {question}
 
-Answer (concise, with citations): """
+Answer (detailed and comprehensive, with citations): """
 
 class SimpleRAG: 
     def __init__(self, chroma_collection_name:str = "research_papers", embedder: Optional[LocalEmbedder] = None):
