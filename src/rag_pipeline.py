@@ -108,10 +108,8 @@ class SimpleRAG:
             meta = doc.metadata or {}
             chunk_id = meta.get("id") or meta.get("source_doc", "") + f"_chunk_{meta.get('chunk_id', '')}"
             meta_info = f"[{chunk_id}]" if chunk_id else ""
-            snippet = doc.page_content.strip().replace("\n", " ")
+            snippet = doc.page_content.strip()
 
-            if len(snippet) > 1000:
-                snippet = snippet[:1000] + "..."
             parts.append(f"{meta_info}\n{snippet}")
         return "\n\n --- \n\n".join(parts) if parts else ""
     
