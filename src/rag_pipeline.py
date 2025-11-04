@@ -146,7 +146,6 @@ class SimpleRAG:
 if __name__ == "__main__":
     rag = SimpleRAG()
 
-    # 🔹 Step 1: Index some text
     print("Indexing example documents into Chroma...")
     sample_texts = [
         "Large Language Models like Groq LLM can process text efficiently and support retrieval-augmented generation.",
@@ -157,7 +156,6 @@ if __name__ == "__main__":
 
     print("Indexing complete.\n")
 
-    # 🔹 Step 2: Interactive Q&A loop
     print("=== Retrieval-Augmented Generation (RAG) System ===")
     print("Type your research question below (or 'exit' to quit)\n")
 
