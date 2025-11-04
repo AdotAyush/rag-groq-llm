@@ -171,4 +171,4 @@ if __name__ == "__main__":
         answer = rag.answer(query)
 
         print("\n--- Final Answer ---")
-        print(answer["content"])
+        print(answer)
