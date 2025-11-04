@@ -1,12 +1,11 @@
 from typing import Any, Dict, List, Optional, Tuple
+
 from functools import lru_cache
 import logging
 import uuid
-import os
 
 from langchain_core.prompts import PromptTemplate
 from langchain_core.documents import Document
-from langsmith import traceable  # ✅ Added LangSmith tracing
 
 from .groq_llm import GroqLLM
 from .embeddings import LocalEmbedder
@@ -28,23 +27,23 @@ Question: {question}
 
 Answer (detailed and comprehensive, with citations): """
 
-
-class SimpleRAG:
-    def __init__(self, chroma_collection_name: str = "research_papers", embedder: Optional[LocalEmbedder] = None):
+class SimpleRAG: 
+    def __init__(self, chroma_collection_name:str = "research_papers", embedder: Optional[LocalEmbedder] = None):
         self.embedder = embedder or LocalEmbedder()
         self.chroma = ChromaService()
         self.collection = chroma_collection_name
         self.llm = GroqLLM()
         self.prompt_template = PromptTemplate.from_template(DEFAULT_PROMPT)
-
-    @traceable("index_documents")  # ✅ Trace the indexing process
+        
     def index_documents(self, documents: List[str], metadatas: List[dict], ids: List[str]) -> None:
         if not (len(documents) == len(metadatas) == len(ids)):
             raise ValueError("Documents, metadatas, and ids must have the same length.")
-
+        
         all_chunks, all_meta, all_ids = [], [], []
         for d, md, id_ in zip(documents, metadatas, ids):
+            # chunks = chunk_text(d, max_chunk_size=MAX_CHUNK_SIZE, overlap=CHUNK_OVERLAP)
             chunks = chunk_text(d, max_size=MAX_CHUNK_SIZE, overlap=CHUNK_OVERLAP)
+
             for i, chunk in enumerate(chunks):
                 chunk_id = f"{id_}_chunk_{i}"
                 meta = md.copy()
@@ -52,7 +51,7 @@ class SimpleRAG:
                 all_chunks.append(chunk)
                 all_meta.append(meta)
                 all_ids.append(chunk_id)
-
+        
         logger.info("Embedding %d chunks", len(all_chunks))
         embeddings = self.embedder.embed(all_chunks)
 
@@ -88,8 +87,7 @@ class SimpleRAG:
                 meta["id"] = id_list[i]
             docs_out.append((d, meta))
         return docs_out
-
-    @traceable("retrieve")  # ✅ Trace retrieval step
+    
     def retrieve(self, query: str, top_k: int = 5) -> List[Document]:
         query_embedding = self.embedder.embed([query])[0]
         try:
@@ -97,14 +95,14 @@ class SimpleRAG:
         except Exception as e:
             logger.error("Chroma query failed: %s", e)
             return []
-
+        
         pairs = self._parse_chroma_results(raw)
         docs = []
         for text, meta in pairs:
             docs.append(Document(page_content=text, metadata=meta or {}))
 
         return docs
-
+    
     def _build_context(self, documents: List[Document]) -> str:
         parts = []
         for doc in documents:
@@ -112,16 +110,15 @@ class SimpleRAG:
             chunk_id = meta.get("id") or meta.get("source_doc", "") + f"_chunk_{meta.get('chunk_id', '')}"
             meta_info = f"[{chunk_id}]" if chunk_id else ""
             snippet = doc.page_content.strip()
+
             parts.append(f"{meta_info}\n{snippet}")
         return "\n\n --- \n\n".join(parts) if parts else ""
-
-    @traceable("answer") 
+    
     def answer(self, question: str, k: int = 5, use_cache: bool = False) -> dict:
         docs = self.retrieve(question, top_k=k)
+
         context = self._build_context(docs)
         prompt = self.prompt_template.format(context=context, question=question)
-
-        traceable.log({"prompt": prompt, "retrieved_docs": [d.metadata for d in docs]})
 
         try:
             generated = self.llm.generate([prompt])
@@ -130,15 +127,12 @@ class SimpleRAG:
             generated = f"LLM error: {e}"
 
         sources = [d.metadata for d in docs]
-
-        traceable.log({"llm_response": generated})
         return {
             "answer": generated,
             "sources": sources,
             "raw_retrieved_documents": docs
         }
-
-    @traceable("index_texts_with_auto_ids")  # ✅ Trace text ingestion
+    
     def index_texts_with_auto_ids(self, texts: List[str], base_id: str = "doc"):
         metas, ids = [], []
         docs = []
@@ -149,26 +143,32 @@ class SimpleRAG:
             ids.append(doc_id)
         self.index_documents(docs, metas, ids)
 
-
 if __name__ == "__main__":
     rag = SimpleRAG()
-    print("Indexing example documents into Chroma...")
 
+    # 🔹 Step 1: Index some text
+    print("Indexing example documents into Chroma...")
     sample_texts = [
         "Large Language Models like Groq LLM can process text efficiently and support retrieval-augmented generation.",
         "LangChain provides modular components for building LLM-powered applications.",
         "Chroma is a vector database used to store and retrieve document embeddings."
     ]
     rag.index_texts_with_auto_ids(sample_texts, base_id="sample")
+
     print("Indexing complete.\n")
 
+    # 🔹 Step 2: Interactive Q&A loop
     print("=== Retrieval-Augmented Generation (RAG) System ===")
+    print("Type your research question below (or 'exit' to quit)\n")
+
     while True:
         query = input("Enter your query: ").strip()
         if query.lower() in ["exit", "quit"]:
             print("Exiting RAG system...")
             break
+
         print("\nRetrieving and generating answer...\n")
         answer = rag.answer(query)
+
         print("\n--- Final Answer ---")
         print(answer)
