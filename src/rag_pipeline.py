@@ -175,10 +175,10 @@ if __name__ == "__main__":
         docs = result.get("raw_retrieved_documents", [])
 
         print("\n" + "="*70)
-        print("🧠  Final Answer:\n")
+        print("Final Answer:\n")
         print(answer.strip())
         print("\n" + "="*70)
-        print("📚  Sources Used:")
+        print("Sources Used:")
         for i, src in enumerate(sources):
             src_id = src.get("id", "unknown")
             print(f"  [{i+1}] Chunk ID: {src_id}")
