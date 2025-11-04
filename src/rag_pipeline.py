@@ -88,7 +88,7 @@ class SimpleRAG:
             docs_out.append((d, meta))
         return docs_out
     
-    def retrieve(self, query: str, top_k: int = 5) -> List[Document]:
+    def retrieve(self, query: str, top_k: int = 3) -> List[Document]:
         query_embedding = self.embedder.embed([query])[0]
         try:
             raw = self.chroma.query(self.collection, query_embedding, n_results=top_k)
