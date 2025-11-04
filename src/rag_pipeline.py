@@ -168,7 +168,18 @@ if __name__ == "__main__":
             break
 
         print("\nRetrieving and generating answer...\n")
-        answer = rag.answer(query)
+        result = rag.answer(query)
 
-        print("\n--- Final Answer ---")
-        print(answer)
+        answer = result.get("answer", "")
+        sources = result.get("sources", [])
+        docs = result.get("raw_retrieved_documents", [])
+
+        print("\n" + "="*70)
+        print("🧠  Final Answer:\n")
+        print(answer.strip())
+        print("\n" + "="*70)
+        print("📚  Sources Used:")
+        for i, src in enumerate(sources):
+            src_id = src.get("id", "unknown")
+            print(f"  [{i+1}] Chunk ID: {src_id}")
+        print("="*70 + "\n")
