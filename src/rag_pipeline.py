@@ -6,7 +6,7 @@ import os
 
 from langchain_core.prompts import PromptTemplate
 from langchain_core.documents import Document
-from langsmith import trace  # ✅ Added LangSmith tracing
+from langsmith import traceable  # ✅ Added LangSmith tracing
 
 from .groq_llm import GroqLLM
 from .embeddings import LocalEmbedder
