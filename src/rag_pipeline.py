@@ -37,7 +37,7 @@ class SimpleRAG:
         self.llm = GroqLLM()
         self.prompt_template = PromptTemplate.from_template(DEFAULT_PROMPT)
 
-    @trace("index_documents")  # ✅ Trace the indexing process
+    @traceable("index_documents")  # ✅ Trace the indexing process
     def index_documents(self, documents: List[str], metadatas: List[dict], ids: List[str]) -> None:
         if not (len(documents) == len(metadatas) == len(ids)):
             raise ValueError("Documents, metadatas, and ids must have the same length.")
