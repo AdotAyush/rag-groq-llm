@@ -10,3 +10,6 @@ fastapi
 uvicorn
 openai
 pytest
+langsmith
+langchain_huggingface
+langchain_community

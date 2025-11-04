@@ -89,7 +89,7 @@ class SimpleRAG:
             docs_out.append((d, meta))
         return docs_out
 
-    @trace("retrieve")  # ✅ Trace retrieval step
+    @traceable("retrieve")  # ✅ Trace retrieval step
     def retrieve(self, query: str, top_k: int = 5) -> List[Document]:
         query_embedding = self.embedder.embed([query])[0]
         try:
@@ -115,13 +115,13 @@ class SimpleRAG:
             parts.append(f"{meta_info}\n{snippet}")
         return "\n\n --- \n\n".join(parts) if parts else ""
 
-    @trace("answer") 
+    @traceable("answer") 
     def answer(self, question: str, k: int = 5, use_cache: bool = False) -> dict:
         docs = self.retrieve(question, top_k=k)
         context = self._build_context(docs)
         prompt = self.prompt_template.format(context=context, question=question)
 
-        trace.log({"prompt": prompt, "retrieved_docs": [d.metadata for d in docs]})
+        traceable.log({"prompt": prompt, "retrieved_docs": [d.metadata for d in docs]})
 
         try:
             generated = self.llm.generate([prompt])
@@ -131,14 +131,14 @@ class SimpleRAG:
 
         sources = [d.metadata for d in docs]
 
-        trace.log({"llm_response": generated})
+        traceable.log({"llm_response": generated})
         return {
             "answer": generated,
             "sources": sources,
             "raw_retrieved_documents": docs
         }
 
-    @trace("index_texts_with_auto_ids")  # ✅ Trace text ingestion
+    @traceable("index_texts_with_auto_ids")  # ✅ Trace text ingestion
     def index_texts_with_auto_ids(self, texts: List[str], base_id: str = "doc"):
         metas, ids = [], []
         docs = []
