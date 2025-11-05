@@ -26,7 +26,7 @@ def load_all_text():
                     if text:  # ✅ skip empty files
                         docs.append(Document(page_content=text, metadata={"source": fname}))
                     else:
-                        print(f"⚠️ Skipping empty file: {fname}")
+                        print(f"Skipping empty file: {fname}")
     return docs
 
 
@@ -42,7 +42,7 @@ def create_embeddings():
     print("Creating ChromaDB vector store...")
     vectordb = Chroma.from_documents(chunks, embedding=embedder, persist_directory=CHROMA_DIR)
     vectordb.persist()
-    print(f"✅ Stored {len(chunks)} chunks in ChromaDB at {CHROMA_DIR}")
+    print(f"Stored {len(chunks)} chunks in ChromaDB at {CHROMA_DIR}")
 
 if __name__ == "__main__":
     create_embeddings()
